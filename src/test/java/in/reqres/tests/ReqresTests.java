@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import static in.reqres.helpers.CustomAllureListener.withCustomTemplates;
 import static io.restassured.RestAssured.*;
 import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
@@ -28,6 +29,7 @@ public class ReqresTests extends TestBase{
 
     public void getListUsers(String count){
         Response response = given()
+                                .filter(withCustomTemplates())
                                 .param(Endpoints.listUsersQueryParamName,count)
                             .when()
                                 .get(Endpoints.listUsersPath)
@@ -50,7 +52,8 @@ public class ReqresTests extends TestBase{
     @DisplayName("Check GET method /api/users/ -> get User with id == 2")
     public void getSingleUser(){
         String userId = "2";
-        when()
+        given().filter(withCustomTemplates())
+        .when()
             .get(Endpoints.singleUserPath + userId)
         .then()
             .statusCode(200)
@@ -62,7 +65,9 @@ public class ReqresTests extends TestBase{
     @DisplayName("Check GET method /api/users/ -> User with id == 23 Not Found")
     public void singleUserNotFound(){
         String userId = "23";
-        when()
+        given()
+                .filter(withCustomTemplates())
+        .when()
              .get(Endpoints.singleUserPath + userId)
              .then()
              .statusCode(404)
@@ -81,7 +86,9 @@ public class ReqresTests extends TestBase{
 
         Gson gson = new Gson();
 
-        given().body(gson.toJson(body))
+        given()
+                .filter(withCustomTemplates())
+                .body(gson.toJson(body))
                 .when()
                 .post(Endpoints.createUserPath)
                 .then()
@@ -105,7 +112,9 @@ public class ReqresTests extends TestBase{
 
         Gson gson = new Gson();
 
-        given().body(gson.toJson(body))
+        given()
+                .filter(withCustomTemplates())
+                .body(gson.toJson(body))
                 .when()
                 .put(Endpoints.createUserPath + id)
                 .then()

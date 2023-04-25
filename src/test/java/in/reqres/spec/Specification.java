@@ -25,9 +25,7 @@ public class Specification {
 
 
     public static void initSpecification(RequestSpecification request){
-        RestAssured.filters(withCustomTemplates());
         RestAssured.requestSpecification = request;
-        RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
 
     }
 }

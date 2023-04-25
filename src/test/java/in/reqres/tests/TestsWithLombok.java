@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static in.reqres.helpers.CustomAllureListener.withCustomTemplates;
 import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.*;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
@@ -25,7 +26,7 @@ public class TestsWithLombok extends TestBase {
         userLoginModelRequest.setPassword("pistol");
 
         UserLoginModelResponse response = step ("Make request", () ->
-                given(requestSpecification)
+                given(requestSpecification).filter(withCustomTemplates())
                 .body(userLoginModelRequest)
                 .when()
                 .post(Endpoints.registerUserPath)
@@ -45,7 +46,9 @@ public class TestsWithLombok extends TestBase {
     @Test
     @DisplayName("Get List resources")
     public void getListResources(){
-        ListResourcesModelResponse response = step ("Make request", () -> given(requestSpecification)
+        ListResourcesModelResponse response = step ("Make request", () ->
+                given(requestSpecification)
+                .filter(withCustomTemplates())
                 .when()
                 .get(Endpoints.lisResourcesPath)
                 .then()
