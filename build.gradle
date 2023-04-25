@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'io.qameta.allure' version '2.10.0'
+    id "io.freefair.lombok" version "6.0.0-m2"
 }
 
 group 'in.reqres'
@@ -37,6 +38,7 @@ allure {
 
 dependencies {
     testImplementation(
+            'org.projectlombok:lombok:1.18.20',
             'org.junit.jupiter:junit-jupiter:5.9.2',
             'org.junit.jupiter:junit-jupiter-api:5.8.1',
             "io.qameta.allure:allure-rest-assured:$allureVersion",

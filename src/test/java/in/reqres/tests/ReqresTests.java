@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +39,7 @@ public class ReqresTests extends TestBase{
         response
                 .then()
                 .statusCode(200)
-                .assertThat().body(matchesJsonSchemaInClasspath("shemes/listUsersShceme.json"));
+                .assertThat().body(matchesJsonSchemaInClasspath("schemes/listUsersScheme.json"));
         List<String> emails = response.jsonPath().getList("data.email");
         List<Integer> id = response.jsonPath().getList("data.id");
         Assertions.assertTrue(emails.stream().allMatch(email->email.endsWith("@reqres.in")),"emails doesn`t end`s with '@reqres.in'");
@@ -52,10 +51,10 @@ public class ReqresTests extends TestBase{
     public void getSingleUser(){
         String userId = "2";
         when()
-            .get(Endpoints.singleUserPath + "/" + userId)
+            .get(Endpoints.singleUserPath + userId)
         .then()
             .statusCode(200)
-            .assertThat().body(matchesJsonSchemaInClasspath("shemes/singleUserShceme.json"))
+            .assertThat().body(matchesJsonSchemaInClasspath("schemes/singleUserScheme.json"))
             .assertThat().body("data.id", equalTo(Integer.parseInt(userId)));
     }
 
@@ -64,7 +63,7 @@ public class ReqresTests extends TestBase{
     public void singleUserNotFound(){
         String userId = "23";
         when()
-             .get(Endpoints.singleUserPath + "/" + userId)
+             .get(Endpoints.singleUserPath + userId)
              .then()
              .statusCode(404)
              .assertThat().body(is("{}"));
@@ -89,7 +88,7 @@ public class ReqresTests extends TestBase{
                 .statusCode(201)
                 .assertThat().body("name", equalTo(name))
                 .assertThat().body("job",equalTo(job))
-                .body(matchesJsonSchemaInClasspath("shemes/createUserShceme.json"));
+                .body(matchesJsonSchemaInClasspath("schemes/createUserScheme.json"));
 
     }
 
@@ -108,11 +107,11 @@ public class ReqresTests extends TestBase{
 
         given().body(gson.toJson(body))
                 .when()
-                .put(Endpoints.createUserPath + "/" + id)
+                .put(Endpoints.createUserPath + id)
                 .then()
                 .statusCode(200)
                 .assertThat().body("name", equalTo(name))
                 .assertThat().body("job",equalTo(job))
-                .body(matchesJsonSchemaInClasspath("shemes/updateUserShceme.json"));
+                .body(matchesJsonSchemaInClasspath("schemes/updateUserScheme.json"));
     }
 }
