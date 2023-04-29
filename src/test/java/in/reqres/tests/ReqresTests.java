@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import static in.reqres.helpers.CustomAllureListener.withCustomTemplates;
 import static io.restassured.RestAssured.*;
 import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
@@ -22,105 +21,102 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 
-public class ReqresTests extends TestBase{
+public class ReqresTests extends TestBase {
 
-    @ParameterizedTest(name="Check GET method /api/users?page={0}")
-    @ValueSource(strings = {"2","4"})
+    @ParameterizedTest(name = "Check GET method /api/users?page={0}")
+    @ValueSource(strings = {"2", "4"})
 
-    public void getListUsers(String count){
-        Response response = given()
-                                .filter(withCustomTemplates())
-                                .param(Endpoints.listUsersQueryParamName,count)
-                            .when()
-                                .get(Endpoints.listUsersPath)
-                            .then()
-                                 .extract()
-                                 .response();
+    public void getListUsers(String count) {
+        Response response = given(requestSpecification)
+                .param(Endpoints.listUsersQueryParamName, count)
+                .when()
+                .get(Endpoints.listUsersPath)
+                .then()
+                .spec(responseSpecification)
+                .extract()
+                .response();
 
-        Assertions.assertEquals(response.jsonPath().getInt("page"),Integer.parseInt(count),"Doesn`t match");
+        Assertions.assertEquals(response.jsonPath().getInt("page"), Integer.parseInt(count), "Doesn`t match");
         response
                 .then()
                 .statusCode(200)
                 .assertThat().body(matchesJsonSchemaInClasspath("schemes/listUsersScheme.json"));
         List<String> emails = response.jsonPath().getList("data.email");
         List<Integer> id = response.jsonPath().getList("data.id");
-        Assertions.assertTrue(emails.stream().allMatch(email->email.endsWith("@reqres.in")),"emails doesn`t end`s with '@reqres.in'");
+        Assertions.assertTrue(emails.stream().allMatch(email -> email.endsWith("@reqres.in")), "emails doesn`t end`s with '@reqres.in'");
         Assertions.assertEquals(response.jsonPath().get("total"), Collections.max(id), "total value doesn`t match max id");
     }
 
     @Test
     @DisplayName("Check GET method /api/users/ -> get User with id == 2")
-    public void getSingleUser(){
+    public void getSingleUser() {
         String userId = "2";
-        given().filter(withCustomTemplates())
-        .when()
-            .get(Endpoints.singleUserPath + userId)
-        .then()
-            .statusCode(200)
-            .assertThat().body(matchesJsonSchemaInClasspath("schemes/singleUserScheme.json"))
-            .assertThat().body("data.id", equalTo(Integer.parseInt(userId)));
+        given(requestSpecification)
+                .when()
+                .get(Endpoints.singleUserPath + userId)
+                .then()
+                .spec(responseSpecification)
+                .assertThat().body(matchesJsonSchemaInClasspath("schemes/singleUserScheme.json"))
+                .assertThat().body("data.id", equalTo(Integer.parseInt(userId)));
     }
 
     @Test
     @DisplayName("Check GET method /api/users/ -> User with id == 23 Not Found")
-    public void singleUserNotFound(){
+    public void singleUserNotFound() {
         String userId = "23";
-        given()
-                .filter(withCustomTemplates())
-        .when()
-             .get(Endpoints.singleUserPath + userId)
-             .then()
-             .statusCode(404)
-             .assertThat().body(is("{}"));
+        given(requestSpecification)
+                .when()
+                .get(Endpoints.singleUserPath + userId)
+                .then()
+                .statusCode(404)
+                .assertThat().body(is("{}"));
     }
 
     @Test
     @DisplayName("Check POST method  /api/users -> Create User")
-    public void registerNewUser(){
+    public void registerNewUser() {
         RandomUser user = new RandomUser();
         String name = user.getName();
         String job = user.getJob();
-        HashMap<String,String> body = new HashMap();
-        body.put("name",name);
-        body.put("job",job);
+        HashMap<String, String> body = new HashMap();
+        body.put("name", name);
+        body.put("job", job);
 
         Gson gson = new Gson();
 
-        given()
-                .filter(withCustomTemplates())
+        given(requestSpecification)
                 .body(gson.toJson(body))
                 .when()
                 .post(Endpoints.createUserPath)
                 .then()
                 .statusCode(201)
                 .assertThat().body("name", equalTo(name))
-                .assertThat().body("job",equalTo(job))
+                .assertThat().body("job", equalTo(job))
                 .body(matchesJsonSchemaInClasspath("schemes/createUserScheme.json"));
 
     }
 
     @Test
     @DisplayName("Check PUT method  /api/users ->  User")
-    public void updateUser(){
+    public void updateUser() {
         String id = "2";
         RandomUser user = new RandomUser();
         String name = user.getName();
         String job = user.getJob();
-        HashMap<String,String> body = new HashMap();
-        body.put("name",name);
-        body.put("job",job);
+        HashMap<String, String> body = new HashMap();
+        body.put("name", name);
+        body.put("job", job);
 
         Gson gson = new Gson();
 
-        given()
-                .filter(withCustomTemplates())
+        given(requestSpecification)
                 .body(gson.toJson(body))
                 .when()
                 .put(Endpoints.createUserPath + id)
                 .then()
-                .statusCode(200)
+                .spec(responseSpecification)
                 .assertThat().body("name", equalTo(name))
-                .assertThat().body("job",equalTo(job))
+                .assertThat().body("job", equalTo(job))
                 .body(matchesJsonSchemaInClasspath("schemes/updateUserScheme.json"));
     }
 }

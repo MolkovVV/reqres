@@ -1,31 +1,33 @@
 package in.reqres.spec;
 
+import in.reqres.config.ConfigReader;
 import in.reqres.helpers.CustomAllureListener;
-import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
-import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.filter.log.LogDetail;
-import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.filter.log.ResponseLoggingFilter;
+
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
+import io.restassured.specification.ResponseSpecification;
 
-import static in.reqres.helpers.CustomAllureListener.*;
-
+import static io.restassured.RestAssured.with;
 
 public class Specification {
-    public static RequestSpecification requestSpecification(String baseUrl){
-        return new RequestSpecBuilder()
-                .setBaseUri(baseUrl)
-                .log(LogDetail.URI)
+    public static RequestSpecification requestSpecification = with()
+            .filter(CustomAllureListener.withCustomTemplates())
+            .log().uri()
+            .log().body()
+            .contentType(ContentType.JSON)
+            .baseUri(ConfigReader.Instance.read().getMainUrl());
+
+
+    public static ResponseSpecification responseSpecification = new ResponseSpecBuilder()
                 .log(LogDetail.BODY)
-                .setContentType(ContentType.JSON)
+                .log(LogDetail.STATUS)
                 .build();
-    }
 
-
-    public static void initSpecification(RequestSpecification request){
-        RestAssured.requestSpecification = request;
-
+    public static void initSpecification(RequestSpecification requestSpecification, ResponseSpecification responseSpecification){
+        RestAssured.requestSpecification = requestSpecification;
+        RestAssured.responseSpecification = responseSpecification;
     }
 }

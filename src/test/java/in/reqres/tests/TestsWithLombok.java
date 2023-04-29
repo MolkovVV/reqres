@@ -9,12 +9,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static in.reqres.helpers.CustomAllureListener.withCustomTemplates;
 import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.*;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.MatcherAssert.assertThat;
-
 
 public class TestsWithLombok extends TestBase {
     @Test
@@ -26,11 +24,14 @@ public class TestsWithLombok extends TestBase {
         userLoginModelRequest.setPassword("pistol");
 
         UserLoginModelResponse response = step ("Make request", () ->
-                given(requestSpecification).filter(withCustomTemplates())
+                given()
+                .spec(requestSpecification)
                 .body(userLoginModelRequest)
                 .when()
                 .post(Endpoints.registerUserPath)
-                .then().extract().as(UserLoginModelResponse.class));
+                .then()
+                .spec(responseSpecification)
+                .extract().as(UserLoginModelResponse.class));
 
         step("verify that token not null in response", () ->
         Assertions.assertTrue(response.getToken() != null,"token is null!"));
@@ -47,12 +48,12 @@ public class TestsWithLombok extends TestBase {
     @DisplayName("Get List resources")
     public void getListResources(){
         ListResourcesModelResponse response = step ("Make request", () ->
-                given(requestSpecification)
-                .filter(withCustomTemplates())
+                given()
+                .spec(requestSpecification)
                 .when()
                 .get(Endpoints.lisResourcesPath)
                 .then()
-                .statusCode(200)
+                .spec(responseSpecification)
                 .extract().as(ListResourcesModelResponse.class));
         step ("Verify page number in response", () ->
         Assertions.assertTrue(response.getPage() == 1, "Number page doesn`t match"));
